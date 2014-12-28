@@ -16,6 +16,7 @@ require! {
 
 if ismongo
   mongo = require 'mongodb'
+  mc = require('memjs').Client.create()
   Grid = mongo.Grid
   MongoClient = mongo.MongoClient
 else
@@ -101,21 +102,28 @@ speechsynth-mongo = (req, res) ->
     return
   #res.send 'todo not yet implemented'
   #return
-  MongoClient.connect mongourl, (err, db) ->
-    grid = Grid db
-    key = 'gsynth|' + lang + '|' + word
-    grid.get key, (err2, res2) ->
-      if res2? #
-        res.type 'audio/mpeg'
-        res.send res2
-        db.close()
-      else
-        request.get {url: 'https://translate.google.com/translate_tts?' + querystring.stringify({ie: 'UTF-8', tl: lang, q: word}), encoding: null, headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2236.0 Safari/537.36'} }, (error, response, body) ->
-          console.log 'requested ' + word + ' in ' + lang
-          grid.put body, {_id: key, content_type: 'audio/mpeg'}, (err3, res3) ->
+  key = 'gsynth|' + lang + '|' + word
+  mc.get key, (err0, res0) ->
+    if val0?
+      res.type 'audio/mpeg'
+      res.send res0
+    else
+      MongoClient.connect mongourl, (err, db) ->
+        grid = Grid db
+        grid.get key, (err2, res2) ->
+          if res2? #
             res.type 'audio/mpeg'
-            res.send body
+            res.send res2
             db.close()
+            mc.set key, res2
+          else
+            request.get {url: 'https://translate.google.com/translate_tts?' + querystring.stringify({ie: 'UTF-8', tl: lang, q: word}), encoding: null, headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2236.0 Safari/537.36'} }, (error, response, body) ->
+              console.log 'requested ' + word + ' in ' + lang
+              mc.set key, body
+              grid.put body, {_id: key, content_type: 'audio/mpeg'}, (err3, res3) ->
+                res.type 'audio/mpeg'
+                res.send body
+                db.close()
 
 
 if ismongo
