@@ -104,7 +104,7 @@
     }
     key = 'gsynth|' + lang + '|' + word;
     return mc.get(key, function(err0, res0){
-      if (typeof val0 != 'undefined' && val0 !== null) {
+      if (res0 != null) {
         res.type('audio/mpeg');
         return res.send(res0);
       } else {

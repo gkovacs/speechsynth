@@ -104,7 +104,7 @@ speechsynth-mongo = (req, res) ->
   #return
   key = 'gsynth|' + lang + '|' + word
   mc.get key, (err0, res0) ->
-    if val0?
+    if res0?
       res.type 'audio/mpeg'
       res.send res0
     else
