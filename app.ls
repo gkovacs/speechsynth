@@ -111,7 +111,8 @@ speechsynth-mongo = (req, res) ->
       MongoClient.connect mongourl, (err, db) ->
         grid = Grid db
         grid.get key, (err2, res2) ->
-          if res2? #
+          if res2?
+            console.log 'cache miss for ' + word + ' in ' + lang
             res.type 'audio/mpeg'
             res.send res2
             db.close()
