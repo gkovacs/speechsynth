@@ -1,4 +1,8 @@
-mongourl = process.env.MONGOHQ_URL
+mongohq = process.env.MONGOHQ_URL
+mongolab = process.env.MONGOLAB_URI
+mongosoup = process.env.MONGOSOUP_URL
+
+mongourl = mongohq ? mongolab ? mongosoup
 # export MONGOHQ_URL='mongodb://localhost:27017/default'
 ismongo = mongourl?
 
@@ -28,6 +32,12 @@ app = express()
 
 app.set 'port', (process.env.PORT || 5001)
 
+app.locals.pretty = true
+
+#app.use (req, res, next) ->
+#  app.locals.pretty = true
+#  next()
+
 app.listen app.get('port'), '0.0.0.0'
 console.log 'Listening on port ' + app.get('port')
 
@@ -37,6 +47,12 @@ allowed-languages = {
   'zh-CN'
   'ko'
   'ja'
+  'fr'
+  'es'
+  'pt'
+  'de'
+  'nl'
+  'ru'
 }
 
 create-directories = ->
@@ -92,12 +108,15 @@ speechsynth-mongo = (req, res) ->
       if res2? #
         res.type 'audio/mpeg'
         res.send res2
+        db.close()
       else
         request.get {url: 'https://translate.google.com/translate_tts?' + querystring.stringify({ie: 'UTF-8', tl: lang, q: word}), encoding: null, headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2236.0 Safari/537.36'} }, (error, response, body) ->
           console.log 'requested ' + word + ' in ' + lang
           grid.put body, {_id: key, content_type: 'audio/mpeg'}, (err3, res3) ->
             res.type 'audio/mpeg'
             res.send body
+            db.close()
+
 
 if ismongo
   app.get '/speechsynth', speechsynth-mongo
