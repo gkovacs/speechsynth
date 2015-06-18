@@ -38,7 +38,8 @@
     'pt': 'pt',
     'de': 'de',
     'nl': 'nl',
-    'ru': 'ru'
+    'ru': 'ru',
+    'hi': 'hi'
   };
   createDirectories = function(){
     var lang, results$ = [];
