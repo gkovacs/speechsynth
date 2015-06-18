@@ -55,6 +55,7 @@ allowed-languages = {
   'nl'
   'ru'
   'hi'
+  'sw'
 }
 
 create-directories = ->
