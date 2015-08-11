@@ -121,6 +121,11 @@ speechsynth-mongo = (req, res) ->
             mc.set key, res2
           else
             request.get {url: 'https://translate.google.com/translate_tts?' + querystring.stringify({ie: 'UTF-8', tl: lang, q: word}), encoding: null, headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2236.0 Safari/537.36'} }, (error, response, body) ->
+              if error?
+                res.type 'text/plain'
+                res.send err
+                db.close()
+                return
               console.log 'requested ' + word + ' in ' + lang
               res.type 'audio/mpeg'
               res.send body
